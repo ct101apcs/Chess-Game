@@ -13,17 +13,17 @@ class ChessBoard : public QMainWindow {
     void squareClicked(int row, int col);
 
    private:
-    QGridLayout* gridLayout;
+    QGridLayout* mainGridLayout;
     ChessPiece* selectedPiece;
     QLabel* turnLabel;
     std::vector<std::vector<ChessPiece*>> board;
     bool currentPlayer;  // true for White, false for Black
-    std::vector<std::pair<int, int>> validMoves;
 
     void initializeChessPieces(int row, int col);
     void setupChessBoard();
     void cleanupChessPieces();
     void resetChessBoard();
+    void restoreMarkedSquares(const std::vector<std::pair<int, int>>& validMoves);
     void updateBoardGUI();
 };
 

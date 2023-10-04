@@ -39,9 +39,9 @@ void ChessBoard::setupChessBoard() {
     QWidget* gridWidget = new QWidget(this);
     gridWidget->setFixedSize(CELL_SIZE * BOARD_SIZE, CELL_SIZE * BOARD_SIZE);
 
-    gridLayout = new QGridLayout(gridWidget);
+    mainGridLayout = new QGridLayout(gridWidget);
+
     board.resize(BOARD_SIZE, std::vector<ChessPiece*>(BOARD_SIZE, nullptr));
-    validMoves.resize(21, std::pair<int, int>({-1, -1}));
     selectedPiece = nullptr;
 
     for (int row = 0; row < BOARD_SIZE; row++) {
@@ -68,7 +68,7 @@ void ChessBoard::setupChessBoard() {
             connect(square, &QPushButton::clicked, this, [this, row, col]() {
                 squareClicked(row, col);
             });
-            gridLayout->addWidget(square, row, col);
+            mainGridLayout->addWidget(square, row, col);
         }
     }
 
@@ -95,15 +95,13 @@ void ChessBoard::resetChessBoard() {
     setupChessBoard();
 }
 
-void ChessBoard::squareClicked(int row, int col) {
-    ChessPiece* clickedPiece = board[row][col];
-
-    if (selectedPiece == clickedPiece) {
-        for (std::pair<int, int> move : validMoves) {
-            QPushButton* square = new QPushButton(this);
-            square->setFixedSize(CELL_SIZE, CELL_SIZE);
+void ChessBoard::restoreMarkedSquares(const std::vector<std::pair<int, int>>& validMoves
+) {
+    for (std::pair<int, int> move : selectedPiece->getValidMovesVector()) {
+        QLayoutItem* item = mainGridLayout->itemAtPosition(move.first, move.second);
+        if (item && item->widget()) {
             if ((move.first + move.second) % 2 != 0) {
-                square->setStyleSheet(
+                item->widget()->setStyleSheet(
                     "QPushButton {"
                     "   background-color: #AFABAB;"
                     "   border: none;"
@@ -112,26 +110,36 @@ void ChessBoard::squareClicked(int row, int col) {
                     "   background-color: rgba(0, 0, 0, 0.2);"
                     "}"
                 );
+            } else {
+                item->widget()->setStyleSheet("");
             }
             if (board[move.first][move.second] != nullptr) {
-                square->setIcon(board[move.first][move.second]->getIcon());
+                QAbstractButton* button = qobject_cast<QAbstractButton*>(item->widget());
+                if (button) {
+                    button->setIcon(board[move.first][move.second]->getIcon());
+                }
+            } else {
+                item->widget()->setEnabled(false);
             }
-            gridLayout->addWidget(square, move.first, move.second);
         }
-        validMoves.clear();
-        return;
+    }
+}
+void ChessBoard::squareClicked(int row, int col) {
+    ChessPiece* clickedPiece = board[row][col];
+
+    if (selectedPiece) {
+        restoreMarkedSquares(selectedPiece->getValidMovesVector());
     }
 
     selectedPiece = clickedPiece;
-    validMoves = selectedPiece->getValidMovesVector(board, row, col);
-    for (std::pair<int, int> move : validMoves) {
-        QLayoutItem* item = gridLayout->itemAtPosition(move.first, move.second);
+    selectedPiece->updateValidMovesVector(board);
+    for (std::pair<int, int> move : selectedPiece->getValidMovesVector()) {
+        QLayoutItem* item = mainGridLayout->itemAtPosition(move.first, move.second);
         if (item && item->widget()) {
             item->widget()->setStyleSheet(
                 "background-color: #A9D18E;"
                 "border: none;"
             );
-            gridLayout->addWidget(item->widget(), move.first, move.second);
         }
     }
 }
@@ -140,11 +148,11 @@ void ChessBoard::updateBoardGUI() {
     // for (int row = 0; row < 8; row++) {
     //     for (int col = 0; col < 8; col++) {
     //         ChessPiece* piece = board[row][col];
-    //         QGridLayout* gridLayout =
+    //         QGridLayout* mainGridLayout =
     //             qobject_cast<QGridLayout*>(&centralWidget->layout());
-    //         if (!gridLayout) return;
+    //         if (!mainGridLayout) return;
     //         QPushButton* square =
-    //             qobject_cast<QPushButton*>(gridLayout->itemAtPosition(row,
+    //             qobject_cast<QPushButton*>(mainGridLayout->itemAtPosition(row,
     //             col)->widget()
     //             );
 

@@ -19,6 +19,9 @@ class ChessPiece : public QPushButton {
     int currentCol;
     PieceColor color;
 
+   protected:
+    std::vector<std::pair<int, int>> validMoves;
+
    public:
     ChessPiece(
         int row = 0, int col = 0, PieceColor color = PieceColor::White,
@@ -29,14 +32,16 @@ class ChessPiece : public QPushButton {
     }
     virtual ~ChessPiece() {}
 
-    virtual std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    virtual void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) = 0;
     virtual QIcon getIcon() const = 0;
 
     int getCurrentRow() const { return currentRow; }
     int getCurrentCol() const { return currentCol; }
     PieceColor getColor() const { return color; }
+    const std::vector<std::pair<int, int>>& getValidMovesVector() const {
+        return validMoves;
+    }
 };
 
 class Rook : public ChessPiece {
@@ -49,10 +54,10 @@ class Rook : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) override {
-        std::vector<std::pair<int, int>> validMoves;
+        validMoves.resize(14, std::pair<int, int>({-1, -1}));
+        int row = getCurrentRow(), col = getCurrentCol();
 
         for (int colIndex = col - 1; colIndex >= 0; colIndex--) {
             if (!board[row][colIndex]) {
@@ -97,8 +102,6 @@ class Rook : public ChessPiece {
                 break;
             }
         }
-
-        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -120,10 +123,10 @@ class Knight : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) override {
-        std::vector<std::pair<int, int>> validMoves;
+        validMoves.resize(8, std::pair<int, int>({-1, -1}));
+        int row = getCurrentRow(), col = getCurrentCol();
 
         int offsets[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
                              {1, -2},  {1, 2},  {2, -1},  {2, 1}};
@@ -139,7 +142,6 @@ class Knight : public ChessPiece {
                 }
             }
         }
-        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -161,10 +163,10 @@ class Bishop : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) override {
-        std::vector<std::pair<int, int>> validMoves;
+        validMoves.resize(14, std::pair<int, int>({-1, -1}));
+        int row = getCurrentRow(), col = getCurrentCol();
 
         int directions[4][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
@@ -190,8 +192,6 @@ class Bishop : public ChessPiece {
                 }
             }
         }
-
-        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -213,12 +213,8 @@ class Queen : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
+    ) override {}
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {
@@ -239,12 +235,8 @@ class King : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
+    ) override {}
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {
@@ -265,12 +257,8 @@ class Pawn : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getValidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
+    void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
+    ) override {}
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {
