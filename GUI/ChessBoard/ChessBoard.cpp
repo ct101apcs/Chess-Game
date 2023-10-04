@@ -1,4 +1,5 @@
 #include "ChessBoard.h"
+#define CELL_SIZE 60
 
 void ChessBoard::initializeChessPieces(int row, int col) {
     ChessPiece* piece = nullptr;
@@ -33,21 +34,25 @@ void ChessBoard::cleanupChessPieces() {
 }
 
 void ChessBoard::setupChessBoard() {
-    QWidget* centralWidget = new QWidget(this);
-    setCentralWidget(centralWidget);
+    setFixedSize(900, 800);
 
-    QGridLayout* gridLayout = new QGridLayout(centralWidget);
+    QWidget* gridWidget = new QWidget(this);
+    gridWidget->setFixedSize(CELL_SIZE * BOARD_SIZE, CELL_SIZE * BOARD_SIZE);
+
+    gridLayout = new QGridLayout(gridWidget);
     board.resize(BOARD_SIZE, std::vector<ChessPiece*>(BOARD_SIZE, nullptr));
+    validMoves.resize(21, std::pair<int, int>({-1, -1}));
+    selectedPiece = nullptr;
 
     for (int row = 0; row < BOARD_SIZE; row++) {
         for (int col = 0; col < BOARD_SIZE; col++) {
             initializeChessPieces(row, col);
-            QPushButton* square = new QPushButton(this);
-            square->setFixedSize(50, 50);
+            QPushButton* square = new QPushButton(gridWidget);
+            square->setFixedSize(CELL_SIZE, CELL_SIZE);
             if ((row + col) % 2 != 0) {
                 square->setStyleSheet(
                     "QPushButton {"
-                    "   background-color: rgba(255, 0, 0, 128);"
+                    "   background-color: #AFABAB;"
                     "   border: none;"
                     "}"
                     "QPushButton:hover {"
@@ -55,13 +60,31 @@ void ChessBoard::setupChessBoard() {
                     "}"
                 );
             }
-            connect(square, &QPushButton::clicked, this, &ChessBoard::squareClicked);
             if (board[row][col] != nullptr) {
                 square->setIcon(board[row][col]->getIcon());
+            } else {
+                square->setEnabled(false);
             }
+            connect(square, &QPushButton::clicked, this, [this, row, col]() {
+                squareClicked(row, col);
+            });
             gridLayout->addWidget(square, row, col);
         }
     }
+
+    setCentralWidget(gridWidget);
+
+    QFont wordFont;
+    wordFont.setFamily("Cambria Math");
+    wordFont.setStyle(QFont::StyleNormal);
+    wordFont.setWeight(QFont::Normal);
+    wordFont.setPointSize(20);
+
+    turnLabel = new QLabel(this);
+    turnLabel->setGeometry(CELL_SIZE * BOARD_SIZE + 20, 30, 150, 30);
+    turnLabel->setFont(wordFont);
+    turnLabel->setAlignment(Qt::AlignCenter);
+    turnLabel->setText(currentPlayer ? "White's turn!" : "Black's turn!");
 
     currentPlayer = true;  // Assuming white starts
     selectedPiece = nullptr;
@@ -72,49 +95,40 @@ void ChessBoard::resetChessBoard() {
     setupChessBoard();
 }
 
-void ChessBoard::squareClicked() {
-    QPushButton* clickedSquare = qobject_cast<QPushButton*>(sender());
-
-    int row, col;
-    for (row = 0; row < BOARD_SIZE; row++) {
-        for (col = 0; col < BOARD_SIZE; col++) {
-            if (board[row][col] == clickedSquare) {
-                break;  // Found the square
-            }
-        }
-        if (col < BOARD_SIZE) {
-            break;  // Found the square
-        }
-    }
-
+void ChessBoard::squareClicked(int row, int col) {
     ChessPiece* clickedPiece = board[row][col];
 
-    if (selectedPiece == nullptr) {
-        if (clickedPiece != nullptr &&
-            (clickedPiece->getColor() == PieceColor::White ? true : false) ==
-                currentPlayer) {
-            selectedPiece = clickedPiece;
+    if (selectedPiece == clickedPiece) {
+        for (std::pair<int, int> move : validMoves) {
+            QPushButton* square = new QPushButton(this);
+            square->setFixedSize(CELL_SIZE, CELL_SIZE);
+            if ((move.first + move.second) % 2 != 0) {
+                square->setStyleSheet(
+                    "QPushButton {"
+                    "   background-color: #AFABAB;"
+                    "   border: none;"
+                    "}"
+                    "QPushButton:hover {"
+                    "   background-color: rgba(0, 0, 0, 0.2);"
+                    "}"
+                );
+            }
+            gridLayout->addWidget(square, move.first, move.second);
         }
-    } else {
-        if (selectedPiece->isMoveValid(row, col)) {
-            // If the move is valid, perform the move
+        validMoves.clear();
+        return;
+    }
 
-            // Update the board: move the selected piece to the new position
-            board[selectedPiece->getCurrentRow()][selectedPiece->getCurrentCol()] =
-                nullptr;
-            board[row][col] = selectedPiece;
-
-            // Update the graphical representation of the board
-            updateBoardGUI();
-
-            // Deselect the piece
-            selectedPiece = nullptr;
-
-            // Switch the current player's turn
-            currentPlayer = !currentPlayer;
-        } else {
-            // The move is invalid; deselect the piece
-            selectedPiece = nullptr;
+    selectedPiece = clickedPiece;
+    validMoves = selectedPiece->getvalidMovesVector(board, row, col);
+    for (std::pair<int, int> move : validMoves) {
+        QLayoutItem* item = gridLayout->itemAtPosition(move.first, move.second);
+        if (item && item->widget()) {
+            item->widget()->setStyleSheet(
+                "background-color: #A9D18E;"
+                "border: none;"
+            );
+            gridLayout->addWidget(item->widget(), move.first, move.second);
         }
     }
 }

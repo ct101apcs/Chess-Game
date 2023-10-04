@@ -7,6 +7,9 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <cmath>
+#include <vector>
+
+constexpr int BOARD_SIZE = 8;
 
 enum class PieceColor { White, Black };
 
@@ -26,7 +29,9 @@ class ChessPiece : public QPushButton {
     }
     virtual ~ChessPiece() {}
 
-    virtual bool isMoveValid(int newRow, int newCol) = 0;
+    virtual std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) = 0;
     virtual QIcon getIcon() const = 0;
 
     int getCurrentRow() const { return currentRow; }
@@ -44,11 +49,11 @@ class Rook : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = newRow - getCurrentRow();
-        int colDiff = newCol - getCurrentCol();
-
-        return (rowDiff == 0 && colDiff != 0) || (rowDiff != 0 && colDiff == 0);
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -70,11 +75,12 @@ class Knight : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = abs(newRow - getCurrentRow());
-        int colDiff = abs(newCol - getCurrentCol());
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
 
-        return (rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2);
+        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -96,11 +102,11 @@ class Bishop : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = abs(newRow - getCurrentRow());
-        int colDiff = abs(newCol - getCurrentCol());
-
-        return rowDiff == colDiff;
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -122,12 +128,11 @@ class Queen : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = abs(newRow - getCurrentRow());
-        int colDiff = abs(newCol - getCurrentCol());
-
-        return (rowDiff == 0 && colDiff != 0) || (rowDiff != 0 && colDiff == 0) ||
-               (rowDiff == colDiff);
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -149,11 +154,11 @@ class King : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = abs(newRow - getCurrentRow());
-        int colDiff = abs(newCol - getCurrentCol());
-
-        return (rowDiff <= 1 && colDiff <= 1);
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
     }
 
     QIcon getIcon() const override {
@@ -175,16 +180,56 @@ class Pawn : public ChessPiece {
         setIcon(getIcon());
     }
 
-    bool isMoveValid(int newRow, int newCol) override {
-        int rowDiff = newRow - getCurrentRow();
-        int colDiff = abs(newCol - getCurrentCol());
+    std::vector<std::pair<int, int>> getvalidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
 
-        // Depending on the pawn's color, it can move forward or backward.
-        if (getColor() == PieceColor::White) {
-            return (rowDiff == -1 && colDiff <= 1);
-        } else {
-            return (rowDiff == 1 && colDiff <= 1);
+        for (int colIndex = col - 1; colIndex >= 0; colIndex--) {
+            if (!board[row][colIndex]) {
+                validMoves.push_back({row, colIndex});
+            } else if (board[row][colIndex]->getColor() != this->getColor()) {
+                validMoves.push_back({row, colIndex});
+                break;
+            } else {
+                break;
+            }
         }
+
+        for (int colIndex = col + 1; colIndex < BOARD_SIZE; colIndex++) {
+            if (!board[row][colIndex]) {
+                validMoves.push_back({row, colIndex});
+            } else if (board[row][colIndex]->getColor() != this->getColor()) {
+                validMoves.push_back({row, colIndex});
+                break;
+            } else {
+                break;
+            }
+        }
+
+        for (int rowIndex = row - 1; rowIndex >= 0; rowIndex--) {
+            if (!board[rowIndex][col]) {
+                validMoves.push_back({rowIndex, col});
+            } else if (board[rowIndex][col]->getColor() != this->getColor()) {
+                validMoves.push_back({rowIndex, col});
+                break;
+            } else {
+                break;
+            }
+        }
+
+        for (int rowIndex = row + 1; rowIndex < BOARD_SIZE; rowIndex++) {
+            if (!board[rowIndex][col]) {
+                validMoves.push_back({rowIndex, col});
+            } else if (board[rowIndex][col]->getColor() != this->getColor()) {
+                validMoves.push_back({rowIndex, col});
+                break;
+            } else {
+                break;
+            }
+        }
+
+        return validMoves;
     }
 
     QIcon getIcon() const override {
