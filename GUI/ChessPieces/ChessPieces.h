@@ -29,7 +29,7 @@ class ChessPiece : public QPushButton {
     }
     virtual ~ChessPiece() {}
 
-    virtual std::vector<std::pair<int, int>> getvalidMovesVector(
+    virtual std::vector<std::pair<int, int>> getValidMovesVector(
         const std::vector<std::vector<ChessPiece*>>& board, int row, int col
     ) = 0;
     virtual QIcon getIcon() const = 0;
@@ -49,138 +49,7 @@ class Rook : public ChessPiece {
         setIcon(getIcon());
     }
 
-    std::vector<std::pair<int, int>> getvalidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
-
-    QIcon getIcon() const override {
-        if (getColor() == PieceColor::White) {
-            return QIcon("Pictures/WhiteRook.png");
-        } else {
-            return QIcon("Pictures/BlackRook.png");
-        }
-    }
-};
-
-class Knight : public ChessPiece {
-   public:
-    Knight(
-        int row = 0, int col = 0, PieceColor color = PieceColor::White,
-        QWidget* parent = nullptr
-    )
-        : ChessPiece(row, col, color, parent) {
-        setIcon(getIcon());
-    }
-
-    std::vector<std::pair<int, int>> getvalidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-
-        return validMoves;
-    }
-
-    QIcon getIcon() const override {
-        if (getColor() == PieceColor::White) {
-            return QIcon("Pictures/WhiteKnight.png");
-        } else {
-            return QIcon("Pictures/BlackKnight.png");
-        }
-    }
-};
-
-class Bishop : public ChessPiece {
-   public:
-    Bishop(
-        int row = 0, int col = 0, PieceColor color = PieceColor::White,
-        QWidget* parent = nullptr
-    )
-        : ChessPiece(row, col, color, parent) {
-        setIcon(getIcon());
-    }
-
-    std::vector<std::pair<int, int>> getvalidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
-
-    QIcon getIcon() const override {
-        if (getColor() == PieceColor::White) {
-            return QIcon("Pictures/WhiteBishop.png");
-        } else {
-            return QIcon("Pictures/BlackBishop.png");
-        }
-    }
-};
-
-class Queen : public ChessPiece {
-   public:
-    Queen(
-        int row = 0, int col = 0, PieceColor color = PieceColor::White,
-        QWidget* parent = nullptr
-    )
-        : ChessPiece(row, col, color, parent) {
-        setIcon(getIcon());
-    }
-
-    std::vector<std::pair<int, int>> getvalidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
-
-    QIcon getIcon() const override {
-        if (getColor() == PieceColor::White) {
-            return QIcon("Pictures/WhiteQueen.png");
-        } else {
-            return QIcon("Pictures/BlackQueen.png");
-        }
-    }
-};
-
-class King : public ChessPiece {
-   public:
-    King(
-        int row = 0, int col = 0, PieceColor color = PieceColor::White,
-        QWidget* parent = nullptr
-    )
-        : ChessPiece(row, col, color, parent) {
-        setIcon(getIcon());
-    }
-
-    std::vector<std::pair<int, int>> getvalidMovesVector(
-        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
-    ) override {
-        std::vector<std::pair<int, int>> validMoves;
-        return validMoves;
-    }
-
-    QIcon getIcon() const override {
-        if (getColor() == PieceColor::White) {
-            return QIcon("Pictures/WhiteKing.png");
-        } else {
-            return QIcon("Pictures/BlackKing.png");
-        }
-    }
-};
-
-class Pawn : public ChessPiece {
-   public:
-    Pawn(
-        int row = 0, int col = 0, PieceColor color = PieceColor::White,
-        QWidget* parent = nullptr
-    )
-        : ChessPiece(row, col, color, parent) {
-        setIcon(getIcon());
-    }
-
-    std::vector<std::pair<int, int>> getvalidMovesVector(
+    std::vector<std::pair<int, int>> getValidMovesVector(
         const std::vector<std::vector<ChessPiece*>>& board, int row, int col
     ) override {
         std::vector<std::pair<int, int>> validMoves;
@@ -229,6 +98,177 @@ class Pawn : public ChessPiece {
             }
         }
 
+        return validMoves;
+    }
+
+    QIcon getIcon() const override {
+        if (getColor() == PieceColor::White) {
+            return QIcon("Pictures/WhiteRook.png");
+        } else {
+            return QIcon("Pictures/BlackRook.png");
+        }
+    }
+};
+
+class Knight : public ChessPiece {
+   public:
+    Knight(
+        int row = 0, int col = 0, PieceColor color = PieceColor::White,
+        QWidget* parent = nullptr
+    )
+        : ChessPiece(row, col, color, parent) {
+        setIcon(getIcon());
+    }
+
+    std::vector<std::pair<int, int>> getValidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+
+        int offsets[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
+                             {1, -2},  {1, 2},  {2, -1},  {2, 1}};
+
+        for (int i = 0; i < 8; ++i) {
+            int newRow = row + offsets[i][0];
+            int newCol = col + offsets[i][1];
+
+            if (newRow >= 0 && newRow < board.size() && newCol >= 0 &&
+                newCol < board[0].size()) {
+                if (board[newRow][newCol] == nullptr) {
+                    validMoves.emplace_back(newRow, newCol);
+                }
+            }
+        }
+        return validMoves;
+    }
+
+    QIcon getIcon() const override {
+        if (getColor() == PieceColor::White) {
+            return QIcon("Pictures/WhiteKnight.png");
+        } else {
+            return QIcon("Pictures/BlackKnight.png");
+        }
+    }
+};
+
+class Bishop : public ChessPiece {
+   public:
+    Bishop(
+        int row = 0, int col = 0, PieceColor color = PieceColor::White,
+        QWidget* parent = nullptr
+    )
+        : ChessPiece(row, col, color, parent) {
+        setIcon(getIcon());
+    }
+
+    std::vector<std::pair<int, int>> getValidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+
+        int directions[4][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+
+        for (int i = 0; i < 4; ++i) {
+            int dRow = directions[i][0];
+            int dCol = directions[i][1];
+
+            for (int step = 1; step < std::min(board.size(), board[0].size()); ++step) {
+                int newRow = row + dRow * step;
+                int newCol = col + dCol * step;
+
+                if (newRow >= 0 && newRow < board.size() && newCol >= 0 &&
+                    newCol < board[0].size()) {
+                    if (board[newRow][newCol] == nullptr) {
+                        validMoves.emplace_back(newRow, newCol);
+                    }
+
+                    if (board[newRow][newCol] != nullptr) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return validMoves;
+    }
+
+    QIcon getIcon() const override {
+        if (getColor() == PieceColor::White) {
+            return QIcon("Pictures/WhiteBishop.png");
+        } else {
+            return QIcon("Pictures/BlackBishop.png");
+        }
+    }
+};
+
+class Queen : public ChessPiece {
+   public:
+    Queen(
+        int row = 0, int col = 0, PieceColor color = PieceColor::White,
+        QWidget* parent = nullptr
+    )
+        : ChessPiece(row, col, color, parent) {
+        setIcon(getIcon());
+    }
+
+    std::vector<std::pair<int, int>> getValidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
+    }
+
+    QIcon getIcon() const override {
+        if (getColor() == PieceColor::White) {
+            return QIcon("Pictures/WhiteQueen.png");
+        } else {
+            return QIcon("Pictures/BlackQueen.png");
+        }
+    }
+};
+
+class King : public ChessPiece {
+   public:
+    King(
+        int row = 0, int col = 0, PieceColor color = PieceColor::White,
+        QWidget* parent = nullptr
+    )
+        : ChessPiece(row, col, color, parent) {
+        setIcon(getIcon());
+    }
+
+    std::vector<std::pair<int, int>> getValidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
+        return validMoves;
+    }
+
+    QIcon getIcon() const override {
+        if (getColor() == PieceColor::White) {
+            return QIcon("Pictures/WhiteKing.png");
+        } else {
+            return QIcon("Pictures/BlackKing.png");
+        }
+    }
+};
+
+class Pawn : public ChessPiece {
+   public:
+    Pawn(
+        int row = 0, int col = 0, PieceColor color = PieceColor::White,
+        QWidget* parent = nullptr
+    )
+        : ChessPiece(row, col, color, parent) {
+        setIcon(getIcon());
+    }
+
+    std::vector<std::pair<int, int>> getValidMovesVector(
+        const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    ) override {
+        std::vector<std::pair<int, int>> validMoves;
         return validMoves;
     }
 
