@@ -13,18 +13,6 @@ void setIcon(
     }
 }
 
-void setIcon(
-    QAbstractButton* button, const QIcon icon, int width = CELL_SIZE - 10,
-    int length = CELL_SIZE - 10
-) {
-    QSize iconSize(30, 30);
-    QPixmap pixmap = icon.pixmap(iconSize);
-    if (button) {
-        button->setIcon(QIcon(pixmap));
-        button->setIconSize(iconSize);
-    }
-}
-
 void ChessBoard::initializeChessPieces(int row, int col) {
     ChessPiece* piece = nullptr;
 
@@ -34,9 +22,9 @@ void ChessBoard::initializeChessPieces(int row, int col) {
         piece = new Knight(row, col, row == 0 ? PieceColor::White : PieceColor::Black);
     } else if ((row == 0 && (col == 2 || col == 5)) || (row == 7 && (col == 2 || col == 5))) {
         piece = new Bishop(row, col, row == 0 ? PieceColor::White : PieceColor::Black);
-    } else if ((row == 0 && col == 3) || (row == 7 && col == 4)) {
+    } else if ((row == 0 && col == 3) || (row == 7 && col == 3)) {
         piece = new King(row, col, row == 0 ? PieceColor::White : PieceColor::Black);
-    } else if ((row == 0 && col == 4) || (row == 7 && col == 3)) {
+    } else if ((row == 0 && col == 4) || (row == 7 && col == 4)) {
         piece = new Queen(row, col, row == 0 ? PieceColor::White : PieceColor::Black);
     } else if (row == 1 || row == 6) {
         piece = new Pawn(row, col, row == 1 ? PieceColor::White : PieceColor::Black);
@@ -138,7 +126,7 @@ void ChessBoard::restoreMarkedSquares(const std::vector<std::pair<int, int>>& va
                 item->widget()->setStyleSheet("");
             }
             if (board[move.first][move.second] != nullptr) {
-                QAbstractButton* button = qobject_cast<QAbstractButton*>(item->widget());
+                QPushButton* button = qobject_cast<QPushButton*>(item->widget());
                 if (button) {
                     setIcon(button, board[move.first][move.second]->getIcon());
                 }
@@ -157,49 +145,63 @@ void ChessBoard::squareClicked(int row, int col) {
 
     selectedPiece = clickedPiece;
     selectedPiece->updateValidMovesVector(board);
+
+    if (!mainGridLayout) {
+        return;
+    }
+
     for (std::pair<int, int> move : selectedPiece->getValidMovesVector()) {
-        QLayoutItem* item = mainGridLayout->itemAtPosition(move.first, move.second);
-        if (item && item->widget()) {
-            item->widget()->setStyleSheet(
-                "background-color: #A9D18E;"
-                "border: none;"
+        int row = move.first;
+        int col = move.second;
+        QLayoutItem* item = mainGridLayout->itemAtPosition(row, col);
+        QPushButton* button =
+            (item ? qobject_cast<QPushButton*>(item->widget()) : new QPushButton);
+
+        button->setStyleSheet(
+            "QPushButton {"
+            "background-color: #A9D18E;"
+            "border: none;"
+            "}"
+            "QPushButton:hover {"
+            "   background-color: #C2E4A6;"
+            "}"
+        );
+
+        button->setEnabled(true);
+        button->disconnect();
+        connect(button, &QPushButton::clicked, this, [this, row, col]() {
+            restoreMarkedSquares(this->selectedPiece->getValidMovesVector());
+            moveMade(
+                this->selectedPiece->getCurrentRow(),
+                this->selectedPiece->getCurrentCol(), row, col
             );
-        }
+        });
     }
 }
 
-void ChessBoard::updateBoardGUI() {
-    // for (int row = 0; row < 8; row++) {
-    //     for (int col = 0; col < 8; col++) {
-    //         ChessPiece* piece = board[row][col];
-    //         QGridLayout* mainGridLayout =
-    //             qobject_cast<QGridLayout*>(&centralWidget->layout());
-    //         if (!mainGridLayout) return;
-    //         QPushButton* square =
-    //             qobject_cast<QPushButton*>(mainGridLayout->itemAtPosition(row,
-    //             col)->widget()
-    //             );
+void ChessBoard::moveMade(int srcRow, int srcCol, int desRow, int desCol) {
+    board[desRow][desCol] = board[srcRow][srcCol];
+    board[desRow][desCol]->updateNewPostion(desRow, desCol);
+    board[srcRow][srcCol] = nullptr;
+    updateBoardGUI();
+}
 
-    //         if (piece != nullptr) {
-    //             switch (piece->getPieceType()) {
-    //                 case ChessPiece::RookType:
-    //                     // Handle Rook icon
-    //                     square->setIcon(QIcon("Pictures/WhiteRook.png"));
-    //                     break;
-    //                 case ChessPiece::KnightType:
-    //                     // Handle Knight icon
-    //                     square->setIcon(QIcon("Pictures/WhiteKnight.png"));
-    //                     break;
-    //                 // Handle other piece types similarly
-    //                 default:
-    //                     square->setIcon(QIcon()
-    //                     );  // Clear the icon if no piece is on the square
-    //                     break;
-    //             }
-    //         } else {
-    //             square->setIcon(QIcon());  // Clear the icon if no piece is on the
-    //             square
-    //         }
-    //     }
-    // }
+void ChessBoard::updateBoardGUI() {
+    for (int row = 0; row < BOARD_SIZE; row++) {
+        for (int col = 0; col < BOARD_SIZE; col++) {
+            QLayoutItem* item = mainGridLayout->itemAtPosition(row, col);
+            QPushButton* button = qobject_cast<QPushButton*>(item->widget());
+
+            if (board[row][col] != nullptr) {
+                setIcon(button, board[row][col]->getIcon());
+                button->setEnabled(true);
+                button->disconnect();
+                connect(button, &QPushButton::clicked, this, [this, row, col]() {
+                    squareClicked(row, col);
+                });
+            } else {
+                setIcon(button, QIcon());
+            }
+        }
+    }
 }

@@ -42,6 +42,11 @@ class ChessPiece : public QPushButton {
     const std::vector<std::pair<int, int>>& getValidMovesVector() const {
         return validMoves;
     }
+
+    void updateNewPostion(int desRow, int desCol) {
+        this->currentRow = desRow;
+        this->currentCol = desCol;
+    }
 };
 
 class Rook : public ChessPiece {

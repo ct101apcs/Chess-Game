@@ -11,6 +11,7 @@ class ChessBoard : public QMainWindow {
 
    public slots:
     void squareClicked(int row, int col);
+    void moveMade(int srcRow, int srcCol, int desRow, int desCol);
 
    private:
     QGridLayout* mainGridLayout;
