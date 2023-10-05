@@ -1,6 +1,30 @@
 #include "ChessBoard.h"
 #define CELL_SIZE 65
 
+void setIcon(
+    QPushButton* button, const QIcon icon, int width = CELL_SIZE - 10,
+    int length = CELL_SIZE - 10
+) {
+    QSize iconSize(30, 30);
+    QPixmap pixmap = icon.pixmap(iconSize);
+    if (button) {
+        button->setIcon(QIcon(pixmap));
+        button->setIconSize(iconSize);
+    }
+}
+
+void setIcon(
+    QAbstractButton* button, const QIcon icon, int width = CELL_SIZE - 10,
+    int length = CELL_SIZE - 10
+) {
+    QSize iconSize(30, 30);
+    QPixmap pixmap = icon.pixmap(iconSize);
+    if (button) {
+        button->setIcon(QIcon(pixmap));
+        button->setIconSize(iconSize);
+    }
+}
+
 void ChessBoard::initializeChessPieces(int row, int col) {
     ChessPiece* piece = nullptr;
 
@@ -61,7 +85,7 @@ void ChessBoard::setupChessBoard() {
                 );
             }
             if (board[row][col] != nullptr) {
-                square->setIcon(board[row][col]->getIcon());
+                setIcon(square, board[row][col]->getIcon());
             } else {
                 square->setEnabled(false);
             }
@@ -116,7 +140,7 @@ void ChessBoard::restoreMarkedSquares(const std::vector<std::pair<int, int>>& va
             if (board[move.first][move.second] != nullptr) {
                 QAbstractButton* button = qobject_cast<QAbstractButton*>(item->widget());
                 if (button) {
-                    button->setIcon(board[move.first][move.second]->getIcon());
+                    setIcon(button, board[move.first][move.second]->getIcon());
                 }
             } else {
                 item->widget()->setEnabled(false);
