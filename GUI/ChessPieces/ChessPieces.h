@@ -59,47 +59,29 @@ class Rook : public ChessPiece {
         validMoves.resize(14, std::pair<int, int>({-1, -1}));
         int row = getCurrentRow(), col = getCurrentCol();
 
-        for (int colIndex = col - 1; colIndex >= 0; colIndex--) {
-            if (!board[row][colIndex]) {
-                validMoves.push_back({row, colIndex});
-            } else if (board[row][colIndex]->getColor() != this->getColor()) {
-                validMoves.push_back({row, colIndex});
-                break;
-            } else {
-                break;
-            }
-        }
+        int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-        for (int colIndex = col + 1; colIndex < BOARD_SIZE; colIndex++) {
-            if (!board[row][colIndex]) {
-                validMoves.push_back({row, colIndex});
-            } else if (board[row][colIndex]->getColor() != this->getColor()) {
-                validMoves.push_back({row, colIndex});
-                break;
-            } else {
-                break;
-            }
-        }
+        for (int i = 0; i < 4; ++i) {
+            int dRow = directions[i][0];
+            int dCol = directions[i][1];
 
-        for (int rowIndex = row - 1; rowIndex >= 0; rowIndex--) {
-            if (!board[rowIndex][col]) {
-                validMoves.push_back({rowIndex, col});
-            } else if (board[rowIndex][col]->getColor() != this->getColor()) {
-                validMoves.push_back({rowIndex, col});
-                break;
-            } else {
-                break;
-            }
-        }
+            for (int step = 1; step < BOARD_SIZE; ++step) {
+                int newRow = row + dRow * step;
+                int newCol = col + dCol * step;
 
-        for (int rowIndex = row + 1; rowIndex < BOARD_SIZE; rowIndex++) {
-            if (!board[rowIndex][col]) {
-                validMoves.push_back({rowIndex, col});
-            } else if (board[rowIndex][col]->getColor() != this->getColor()) {
-                validMoves.push_back({rowIndex, col});
-                break;
-            } else {
-                break;
+                if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 &&
+                    newCol < BOARD_SIZE) {
+                    if (board[newRow][newCol] == nullptr ||
+                        board[newRow][newCol]->getColor() != this->getColor()) {
+                        validMoves.emplace_back(newRow, newCol);
+                    }
+
+                    if (board[newRow][newCol] != nullptr) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
         }
     }
@@ -135,9 +117,10 @@ class Knight : public ChessPiece {
             int newRow = row + offsets[i][0];
             int newCol = col + offsets[i][1];
 
-            if (newRow >= 0 && newRow < board.size() && newCol >= 0 &&
-                newCol < board[0].size()) {
-                if (board[newRow][newCol] == nullptr) {
+            if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 &&
+                newCol < BOARD_SIZE) {
+                if (board[newRow][newCol] == nullptr ||
+                    board[newRow][newCol]->getColor() != this->getColor()) {
                     validMoves.emplace_back(newRow, newCol);
                 }
             }
@@ -174,13 +157,14 @@ class Bishop : public ChessPiece {
             int dRow = directions[i][0];
             int dCol = directions[i][1];
 
-            for (int step = 1; step < std::min(board.size(), board[0].size()); ++step) {
+            for (int step = 1; step < BOARD_SIZE; ++step) {
                 int newRow = row + dRow * step;
                 int newCol = col + dCol * step;
 
-                if (newRow >= 0 && newRow < board.size() && newCol >= 0 &&
-                    newCol < board[0].size()) {
-                    if (board[newRow][newCol] == nullptr) {
+                if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 &&
+                    newCol < BOARD_SIZE) {
+                    if (board[newRow][newCol] == nullptr ||
+                        board[newRow][newCol]->getColor() != this->getColor()) {
                         validMoves.emplace_back(newRow, newCol);
                     }
 
@@ -214,7 +198,37 @@ class Queen : public ChessPiece {
     }
 
     void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
-    ) override {}
+    ) override {
+        validMoves.resize(21, std::pair<int, int>({-1, -1}));
+        int row = getCurrentRow(), col = getCurrentCol();
+
+        int directions[8][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1},
+                                {-1, 0},  {1, 0},  {0, -1}, {0, 1}};
+
+        for (int i = 0; i < 8; ++i) {
+            int dRow = directions[i][0];
+            int dCol = directions[i][1];
+
+            for (int step = 1; step < BOARD_SIZE; ++step) {
+                int newRow = row + dRow * step;
+                int newCol = col + dCol * step;
+
+                if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 &&
+                    newCol < BOARD_SIZE) {
+                    if (board[newRow][newCol] == nullptr ||
+                        board[newRow][newCol]->getColor() != this->getColor()) {
+                        validMoves.emplace_back(newRow, newCol);
+                    }
+
+                    if (board[newRow][newCol] != nullptr) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+    }
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {
@@ -236,7 +250,32 @@ class King : public ChessPiece {
     }
 
     void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
-    ) override {}
+    ) override {
+        validMoves.resize(8, std::pair<int, int>({-1, -1}));
+        int row = getCurrentRow(), col = getCurrentCol();
+
+        int directions[8][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1},
+                                {-1, 0},  {1, 0},  {0, -1}, {0, 1}};
+
+        for (int i = 0; i < 8; ++i) {
+            int newRow = row + directions[i][0];
+            int newCol = col + directions[i][1];
+
+            if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 &&
+                newCol < BOARD_SIZE) {
+                if (board[newRow][newCol] == nullptr ||
+                    board[newRow][newCol]->getColor() != this->getColor()) {
+                    validMoves.emplace_back(newRow, newCol);
+                }
+
+                if (board[newRow][newCol] != nullptr) {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+        }
+    }
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {

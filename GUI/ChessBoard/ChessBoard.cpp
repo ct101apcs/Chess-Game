@@ -1,5 +1,5 @@
 #include "ChessBoard.h"
-#define CELL_SIZE 60
+#define CELL_SIZE 65
 
 void ChessBoard::initializeChessPieces(int row, int col) {
     ChessPiece* piece = nullptr;
@@ -15,7 +15,7 @@ void ChessBoard::initializeChessPieces(int row, int col) {
     } else if ((row == 0 && col == 4) || (row == 7 && col == 3)) {
         piece = new Queen(row, col, row == 0 ? PieceColor::White : PieceColor::Black);
     } else if (row == 1 || row == 6) {
-        piece = new Pawn(row, col, row == 1 ? PieceColor::White : PieceColor::Black);
+        // piece = new Pawn(row, col, row == 1 ? PieceColor::White : PieceColor::Black);
     }
     if (piece != nullptr) {
         board[row][col] = piece;
