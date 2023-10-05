@@ -2,10 +2,10 @@
 #define CELL_SIZE 65
 
 void setIcon(
-    QPushButton* button, const QIcon icon, int width = CELL_SIZE - 10,
-    int length = CELL_SIZE - 10
+    QPushButton* button, const QIcon icon, int width = CELL_SIZE / 2,
+    int length = CELL_SIZE / 2
 ) {
-    QSize iconSize(30, 30);
+    QSize iconSize(width, length);
     QPixmap pixmap = icon.pixmap(iconSize);
     if (button) {
         button->setIcon(QIcon(pixmap));
@@ -167,15 +167,18 @@ void ChessBoard::squareClicked(int row, int col) {
             "}"
         );
 
-        button->setEnabled(true);
-        button->disconnect();
-        connect(button, &QPushButton::clicked, this, [this, row, col]() {
-            restoreMarkedSquares(this->selectedPiece->getValidMovesVector());
-            moveMade(
-                this->selectedPiece->getCurrentRow(),
-                this->selectedPiece->getCurrentCol(), row, col
-            );
-        });
+        if (selectedPiece->getColor() ==
+            (currentPlayer ? PieceColor::White : PieceColor ::Black)) {
+            button->setEnabled(true);
+            button->disconnect();
+            connect(button, &QPushButton::clicked, this, [this, row, col]() {
+                restoreMarkedSquares(this->selectedPiece->getValidMovesVector());
+                moveMade(
+                    this->selectedPiece->getCurrentRow(),
+                    this->selectedPiece->getCurrentCol(), row, col
+                );
+            });
+        }
     }
 }
 
@@ -183,7 +186,11 @@ void ChessBoard::moveMade(int srcRow, int srcCol, int desRow, int desCol) {
     board[desRow][desCol] = board[srcRow][srcCol];
     board[desRow][desCol]->updateNewPostion(desRow, desCol);
     board[srcRow][srcCol] = nullptr;
+
     updateBoardGUI();
+
+    currentPlayer = !currentPlayer;
+    turnLabel->setText(currentPlayer ? "White's turn!" : "Black's turn!");
 }
 
 void ChessBoard::updateBoardGUI() {
