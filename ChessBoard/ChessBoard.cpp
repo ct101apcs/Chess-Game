@@ -1,12 +1,5 @@
 #include "ChessBoard.h"
 
-#include "../ChessPieces/Bishop.h"
-#include "../ChessPieces/King.h"
-#include "../ChessPieces/Knight.h"
-#include "../ChessPieces/Pawn.h"
-#include "../ChessPieces/Queen.h"
-#include "../ChessPieces/Rook.h"
-
 #define CELL_SIZE 65
 
 void setIcon(

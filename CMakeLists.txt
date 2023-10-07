@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION "3.26")
 
 project(Chess-Game)
 
-FILE(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS main.cpp API/*.cpp GUI/*.cpp)
+FILE(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS main.cpp ChessBoard/*.cpp ChessPieces/*.cpp)
 
 set(TARGET_NAME Chess)
 set(CMAKE_EXPORT_COMPILE_COMMANDS OFF)

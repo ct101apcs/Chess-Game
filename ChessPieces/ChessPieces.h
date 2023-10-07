@@ -12,12 +12,14 @@
 constexpr int BOARD_SIZE = 8;
 
 enum class PieceColor { White, Black };
+enum class PieceType { KingType, QueenType, BishopType, KnightType, RookType, PawnType };
 
 class ChessPiece : public QPushButton {
    private:
     int currentRow;
     int currentCol;
     PieceColor color;
+    PieceType type;
 
    protected:
     std::vector<std::pair<int, int>> validMoves;
@@ -34,8 +36,9 @@ class ChessPiece : public QPushButton {
 
     virtual void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) = 0;
-    virtual QIcon getIcon() const = 0;
 
+    virtual QIcon getIcon() const = 0;
+    virtual PieceType getType() const = 0;
     int getCurrentRow() const { return currentRow; }
     int getCurrentCol() const { return currentCol; }
     PieceColor getColor() const { return color; }

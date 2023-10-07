@@ -3,7 +3,7 @@
 
 #include <QLabel>
 
-#include "../../GUI/ChessPieces/ChessPieces.h"
+#include "../ChessPieces/King/King.h"
 
 class ChessBoard : public QMainWindow {
    public:

@@ -1,4 +1,4 @@
-#include "../../../GUI/ChessBoard/ChessBoard.h"
+#include "../../../ChessBoard/ChessBoard.h"
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
