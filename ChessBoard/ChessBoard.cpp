@@ -184,8 +184,8 @@ void ChessBoard::squareClicked(int row, int col) {
 }
 
 void ChessBoard::moveMade(int srcRow, int srcCol, int desRow, int desCol) {
+    board[srcRow][srcCol]->updateNewProperties(desRow, desCol);
     board[desRow][desCol] = board[srcRow][srcCol];
-    board[desRow][desCol]->updateNewPostion(desRow, desCol);
     board[srcRow][srcCol] = nullptr;
 
     updateBoardGUI();

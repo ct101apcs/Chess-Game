@@ -31,10 +31,10 @@ class King : public ChessPiece {
 
    private:
     bool isHorizontallyVerticallyAttackingPiece(
-        const std::vector<std::vector<ChessPiece*>>&, int, int
+        const std::vector<std::vector<ChessPiece*>>&, int, int, int
     );
     bool isDiagonallyAttackingPiece(
-        const std::vector<std::vector<ChessPiece*>>&, int, int
+        const std::vector<std::vector<ChessPiece*>>&, int, int, int
     );
     bool isSafeHorizontallyVertically(
         const std::vector<std::vector<ChessPiece*>>&, int, int

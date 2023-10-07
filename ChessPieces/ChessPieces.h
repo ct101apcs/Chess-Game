@@ -46,10 +46,12 @@ class ChessPiece : public QPushButton {
         return validMoves;
     }
 
-    void updateNewPostion(int desRow, int desCol) {
-        this->currentRow = desRow;
-        this->currentCol = desCol;
-    }
+    void updateNewProperties(int desRow, int desCol);
+
+    void updateValidMovesForTypicalPieces(
+        const std::vector<std::vector<ChessPiece*>>& board, const int directions[][2],
+        int numberOfDirections, int maxValidMoves
+    );  // Rook, Queen, Bishop
 };
 
 #endif

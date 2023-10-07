@@ -1,25 +1,25 @@
 #include "King.h"
 
 bool King::isHorizontallyVerticallyAttackingPiece(
-    const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    const std::vector<std::vector<ChessPiece*>>& board, int row, int col, int step
 ) {
     ChessPiece* piece = board[row][col];
     return piece &&
            (piece->getType() == PieceType::RookType ||
             piece->getType() == PieceType::QueenType ||
-            piece->getType() == PieceType::KingType) &&
+            (step == 1 && piece->getType() == PieceType::KingType)) &&
            piece->getColor() != this->getColor();
 }
 
 bool King::isDiagonallyAttackingPiece(
-    const std::vector<std::vector<ChessPiece*>>& board, int row, int col
+    const std::vector<std::vector<ChessPiece*>>& board, int row, int col, int step
 ) {
     ChessPiece* piece = board[row][col];
     return piece &&
            (piece->getType() == PieceType::BishopType ||
             piece->getType() == PieceType::QueenType ||
-            piece->getType() == PieceType::KingType ||
-            piece->getType() == PieceType::PawnType) &&
+            step == 1 && (piece->getType() == PieceType::KingType) ||
+            (step == 1 && piece->getType() == PieceType::PawnType)) &&
            piece->getColor() != this->getColor();
 }
 
@@ -41,7 +41,7 @@ bool King::isSafeHorizontallyVertically(
                 if (!board[newRow][newCol]) {
                     continue;
                 }
-                if (isHorizontallyVerticallyAttackingPiece(board, newRow, newCol)) {
+                if (isHorizontallyVerticallyAttackingPiece(board, newRow, newCol, step)) {
                     return false;
                 }
                 break;
@@ -72,7 +72,7 @@ bool King::isSafeDiagonally(
                 if (!board[newRow][newCol]) {
                     continue;
                 }
-                if (isDiagonallyAttackingPiece(board, newRow, newCol)) {
+                if (isDiagonallyAttackingPiece(board, newRow, newCol, step)) {
                     return false;
                 }
                 break;
@@ -99,16 +99,11 @@ bool King::isAttackedByKnight(
         int newCol = col + dCol;
 
         if (newRow >= 0 && newRow < BOARD_SIZE && newCol >= 0 && newCol < BOARD_SIZE) {
-            if (!board[newRow][newCol]) {
-                continue;
-            }
-            if (board[newRow][newCol]->getType() == PieceType::KnightType &&
-                board[newRow][newCol]->getColor() != this->getColor()) {
+            ChessPiece* piece = board[newRow][newCol];
+            if (piece && piece->getType() == PieceType::KnightType &&
+                piece->getColor() != this->getColor()) {
                 return true;
             }
-            break;
-        } else {
-            break;
         }
     }
 
@@ -139,12 +134,6 @@ void King::updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& b
                 isSquareSafeForKing(board, newRow, newCol)) {
                 validMoves.emplace_back(newRow, newCol);
             }
-
-            if (board[newRow][newCol] != nullptr) {
-                continue;
-            }
-        } else {
-            continue;
         }
     }
 }
