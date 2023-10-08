@@ -269,9 +269,31 @@ void ChessBoard::moveMade(ChessPiece* srcPiece, int desRow, int desCol) {
     board[desRow][desCol] = board[srcRow][srcCol];
     board[srcRow][srcCol] = nullptr;
 
+    // Check pawn transfering
     if (canTransferPawn(board[desRow][desCol])) {
         drawTransferMenu(board[desRow][desCol]);
     }
+
+    // Mark king or rook moved yet, then castling is not allowed
+    if (board[desRow][desCol]->getType() == PieceType::KingType) {
+        King* king = dynamic_cast<King*>(board[desRow][desCol]);
+        if (king != nullptr) {
+            if (!king->getIsMovedYet()) {
+                king->markMovedYet();
+            }
+            board[desRow][desCol] = king;
+        }
+    }
+    if (board[desRow][desCol]->getType() == PieceType::RookType) {
+        Rook* rook = dynamic_cast<Rook*>(board[desRow][desCol]);
+        if (rook != nullptr) {
+            if (!rook->getIsMovedYet()) {
+                rook->markMovedYet();
+            }
+            board[desRow][desCol] = rook;
+        }
+    }
+
     updateBoardGUI();
 
     currentPlayer = !currentPlayer;

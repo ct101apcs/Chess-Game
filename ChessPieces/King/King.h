@@ -8,6 +8,9 @@
 #include "../../ChessPieces/Rook/Rook.h"
 
 class King : public ChessPiece {
+   private:
+    bool isMovedYet;
+
    public:
     King(
         int row = 0, int col = 0, PieceColor color = PieceColor::White,
@@ -15,10 +18,12 @@ class King : public ChessPiece {
     )
         : ChessPiece(row, col, color, parent) {
         setIcon(getIcon());
+        isMovedYet = false;
     }
 
     void updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board
     ) override;
+    void markMovedYet() { isMovedYet = true; }
 
     QIcon getIcon() const override {
         if (getColor() == PieceColor::White) {
@@ -28,6 +33,7 @@ class King : public ChessPiece {
         }
     }
     PieceType getType() const override { return PieceType::KingType; }
+    bool getIsMovedYet() const { return isMovedYet; }
 };
 
 #endif
