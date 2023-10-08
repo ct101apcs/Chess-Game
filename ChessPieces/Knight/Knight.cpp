@@ -1,7 +1,7 @@
 #include "Knight.h"
 
 void Knight::updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board) {
-    validMoves.resize(8, std::pair<int, int>({-1, -1}));
+    validMoves.resize(8, std::pair<int, int>({-BOARD_SIZE-1, BOARD_SIZE-1}));
     int row = getCurrentRow(), col = getCurrentCol();
 
     int directions[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},

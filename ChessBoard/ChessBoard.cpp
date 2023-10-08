@@ -14,6 +14,17 @@ void setIcon(
     }
 }
 
+void setIcon(
+    QAction* action, const QIcon icon, int width = CELL_SIZE / 2,
+    int length = CELL_SIZE / 2
+) {
+    QSize iconSize(width, length);
+    QPixmap pixmap = icon.pixmap(iconSize);
+    if (action) {
+        action->setIcon(QIcon(pixmap));
+    }
+}
+
 void ChessBoard::initializeChessPieces(int row, int col) {
     ChessPiece* piece = nullptr;
 
@@ -101,6 +112,8 @@ void ChessBoard::setupChessBoard() {
 
     currentPlayer = true;  // Assuming white starts
     selectedPiece = nullptr;
+
+    transferMenu = new QMenu(this);
 }
 
 void ChessBoard::resetChessBoard() {
@@ -174,20 +187,91 @@ void ChessBoard::squareClicked(int row, int col) {
             button->disconnect();
             connect(button, &QPushButton::clicked, this, [this, row, col]() {
                 restoreMarkedSquares(this->selectedPiece->getValidMovesVector());
-                moveMade(
-                    this->selectedPiece->getCurrentRow(),
-                    this->selectedPiece->getCurrentCol(), row, col
-                );
+                moveMade(this->selectedPiece, row, col);
             });
         }
     }
 }
 
-void ChessBoard::moveMade(int srcRow, int srcCol, int desRow, int desCol) {
+bool canTransferPawn(ChessPiece* piece) {
+    if (piece->getType() == PieceType::PawnType) {
+        if ((piece->getColor() == PieceColor::White &&
+             piece->getCurrentRow() == BOARD_SIZE - 1) ||
+            (piece->getColor() == PieceColor::Black && piece->getCurrentRow() == 0)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ChessBoard::transferPawn(ChessPiece* piece, PieceType newType) {
+    int row = piece->getCurrentRow(), col = piece->getCurrentCol();
+
+    switch (newType) {
+        case PieceType::QueenType:
+            board[row][col] = new Queen(row, col, piece->getColor());
+            break;
+        case PieceType::RookType:
+            board[row][col] = new Rook(row, col, piece->getColor());
+            break;
+        case PieceType::KnightType:
+            board[row][col] = new Knight(row, col, piece->getColor());
+            break;
+        case PieceType::BishopType:
+            board[row][col] = new Bishop(row, col, piece->getColor());
+            break;
+    }
+}
+
+void ChessBoard::drawTransferMenu(ChessPiece* piece) {
+    QAction* transferToQueen = transferMenu->addAction("", this, [this, piece]() {
+        transferPawn(piece, PieceType::QueenType);
+    });
+    QAction* transferToRook = transferMenu->addAction("", this, [this, piece]() {
+        transferPawn(piece, PieceType::RookType);
+    });
+    QAction* transferToKnight = transferMenu->addAction("", this, [this, piece]() {
+        transferPawn(piece, PieceType::KnightType);
+    });
+    QAction* transferToBishop = transferMenu->addAction("", this, [this, piece]() {
+        transferPawn(piece, PieceType::BishopType);
+    });
+
+    setIcon(
+        transferToQueen, piece->getColor() == PieceColor::White
+                             ? QIcon("Pictures/WhiteQueen.png")
+                             : QIcon("Pictures/BlackQueen.png")
+    );
+    setIcon(
+        transferToRook, piece->getColor() == PieceColor::White
+                            ? QIcon("Pictures/WhiteRook.png")
+                            : QIcon("Pictures/BlackRook.png")
+    );
+    setIcon(
+        transferToKnight, piece->getColor() == PieceColor::White
+                              ? QIcon("Pictures/WhiteKnight.png")
+                              : QIcon("Pictures/BlackKnight.png")
+    );
+    setIcon(
+        transferToBishop, piece->getColor() == PieceColor::White
+                              ? QIcon("Pictures/WhiteBishop.png")
+                              : QIcon("Pictures/BlackBishop.png")
+    );
+    QPoint pointLocation;
+    pointLocation.setX(500);
+    pointLocation.setY(10);
+    transferMenu->exec(this->mapToGlobal(pointLocation));
+}
+
+void ChessBoard::moveMade(ChessPiece* srcPiece, int desRow, int desCol) {
+    int srcRow = srcPiece->getCurrentRow(), srcCol = srcPiece->getCurrentCol();
     board[srcRow][srcCol]->updateNewProperties(desRow, desCol);
     board[desRow][desCol] = board[srcRow][srcCol];
     board[srcRow][srcCol] = nullptr;
 
+    if (canTransferPawn(board[desRow][desCol])) {
+        drawTransferMenu(board[desRow][desCol]);
+    }
     updateBoardGUI();
 
     currentPlayer = !currentPlayer;

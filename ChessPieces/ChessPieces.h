@@ -45,6 +45,7 @@ class ChessPiece : public QPushButton {
     const std::vector<std::pair<int, int>>& getValidMovesVector() const {
         return validMoves;
     }
+    bool isSquareControlled(const std::vector<std::vector<ChessPiece*>>&, int, int);
 
     void updateNewProperties(int desRow, int desCol);
 
@@ -52,6 +53,19 @@ class ChessPiece : public QPushButton {
         const std::vector<std::vector<ChessPiece*>>& board, const int directions[][2],
         int numberOfDirections, int maxValidMoves
     );  // Rook, Queen, Bishop
+
+   private:
+    bool isHorizontallyVerticallyAttackingPiece(
+        const std::vector<std::vector<ChessPiece*>>&, int, int, int
+    );
+    bool isDiagonallyAttackingPiece(
+        const std::vector<std::vector<ChessPiece*>>&, int, int, int
+    );
+    bool isSafeHorizontallyVertically(
+        const std::vector<std::vector<ChessPiece*>>&, int, int
+    );
+    bool isSafeDiagonally(const std::vector<std::vector<ChessPiece*>>&, int, int);
+    bool isAttackedByKnight(const std::vector<std::vector<ChessPiece*>>&, int, int);
 };
 
 #endif

@@ -1,10 +1,10 @@
 #include "Pawn.h"
 
 void Pawn::updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& board) {
-    validMoves.resize(6, std::pair<int, int>({-1, -1}));
+    validMoves.resize(6, std::pair<int, int>({-BOARD_SIZE - 1, -BOARD_SIZE - 1}));
     int row = getCurrentRow(), col = getCurrentCol();
 
-    int whiteDirections[4][2] = {{-1, 1}, {1, 1}, {2, 0}, {1, 0}};
+    int whiteDirections[4][2] = {{1, -1}, {1, 1}, {2, 0}, {1, 0}};
     int blackDirections[4][2] = {{-1, -1}, {-1, 1}, {-2, 0}, {-1, 0}};
 
     if (this->getColor() == PieceColor::White) {
@@ -35,7 +35,7 @@ void Pawn::updateValidMovesVector(const std::vector<std::vector<ChessPiece*>>& b
             }
         }
     } else {
-        for (int i = (this->getCurrentRow() == 6 ? 2 : 3); i < 4; ++i) {
+        for (int i = (this->getCurrentRow() == BOARD_SIZE - 2 ? 2 : 3); i < 4; ++i) {
             int newRow = row + blackDirections[i][0];
             int newCol = col + blackDirections[i][1];
 

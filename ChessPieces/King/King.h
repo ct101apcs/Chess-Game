@@ -28,20 +28,6 @@ class King : public ChessPiece {
         }
     }
     PieceType getType() const override { return PieceType::KingType; }
-
-   private:
-    bool isHorizontallyVerticallyAttackingPiece(
-        const std::vector<std::vector<ChessPiece*>>&, int, int, int
-    );
-    bool isDiagonallyAttackingPiece(
-        const std::vector<std::vector<ChessPiece*>>&, int, int, int
-    );
-    bool isSafeHorizontallyVertically(
-        const std::vector<std::vector<ChessPiece*>>&, int, int
-    );
-    bool isSafeDiagonally(const std::vector<std::vector<ChessPiece*>>&, int, int);
-    bool isAttackedByKnight(const std::vector<std::vector<ChessPiece*>>&, int, int);
-    bool isSquareSafeForKing(const std::vector<std::vector<ChessPiece*>>&, int, int);
 };
 
 #endif
